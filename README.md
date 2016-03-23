@@ -54,7 +54,7 @@ coming soon
 * Permits a JVM based container application to self-discover all of its mapped ports and accessible ip address, as well of that as all of its peer "services" that share the same service name, ports and/or service tags, as set by Registrator in Consul.
 
 
-## <a id="usage"></a>Usage
+## <a id="usage"></a>Usage Sample
 
 * Ensure your project has the `docker-discovery-registrator-consul` artifact dependency declared in your maven pom or gradle build file as described above. Or build the jar yourself and ensure the jar is in your project's classpath.
 
@@ -65,42 +65,34 @@ consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul -config-dir /path
 
 * On your Docker host ensure Registrator is running such as:
 ```
-docker run -d --name=registrator --net=host --volume=/var/run/docker.sock:/tmp/docker.sock  gliderlabs/registrator:latest consul://localhost:8500
+docker run -d --name=registrator --net=host --volume=/var/run/docker.sock:/tmp/docker.sock  gliderlabs/registrator:latest consul://[YOUR_CONSUL_IP]:8500
 ```
 
-* In your JVM based application that will run in a container you can do the following:
+* In the root of the project:
 
 ```
-ConsulDiscovery c = new ConsulDiscovery()
-						.setConsulIp(System.getProperty("CONSUL_IP"))
-						.setConsulPort(System.getProperty("CONSUL_PORT"))
-						.setServiceName(System.getProperty("MY_SERVICE_NAME")) 
-						.setMyNodeUniqueTagId(System.getProperty("MY_UNIQUE_TAG"))
-						.addPortToDiscover(8080)
-						.addPortToDiscover(8443)
-						.addMustHaveTag("dev")
-						.setServiceNameStrategyClass(MultiServiceNameSinglePortStrategy.class);
+cd sample/
+./build-image.sh
 
+docker images
 
-Collection<ServiceInfo> myServices = c.discoverMe();
-for (ServiceInfo info : myServices) {
-	System.out.println(info);
-}
+REPOSITORY                                    TAG                     IMAGE ID            CREATED             VIRTUAL SIZE
+docker-discovery-registrator-consul-sample    latest                  750dc9aa5052        18 minutes ago      651.5 MB
 ```
 
-* Create your Docker image and run it as two containers on the same Docker host that Registrator is running on (for this example it would EXPOSE 8080,8443)
+* Now run the sample image you built twice, (you can do more if you want)
 
 ```
-docker run -e "SERVICE_TAGS=dev,myUniqueId001" --rm=true -P myDockerApp:latest java -DMY_SERVICE_NAME=myDockerApp -DMY_UNIQUE_TAG=myUniqueId001 -DCONSUL_IP=127.0.0.1 -DCONSUL_PORT=8500 -jar myApp.jar
+docker run -e "SERVICE_TAGS=dev,myUniqueId001" --rm=true -P docker-discovery-registrator-consul-sample:latest java -DMY_SERVICE_NAME=docker-discovery-registrator-consul-sample -DMY_UNIQUE_TAG=myUniqueId001 -DCONSUL_IP=[YOUR_CONSUL_IP] -DCONSUL_PORT=8500 -DSERVICE_NAME_STRATEGY=org.bitsofinfo.docker.discovery.registrator.consul.MultiServiceNameSinglePortStrategy -jar /sample/docker-discovery-registrator-consul-1.0-RC1-fat.jar
 
-docker run -e "SERVICE_TAGS=dev,myUniqueId002" --rm=true -P myDockerApp:latest java -DMY_SERVICE_NAME=myDockerApp -DMY_UNIQUE_TAG=myUniqueId002 -DCONSUL_IP=127.0.0.1 -DCONSUL_PORT=8500 -jar myApp.jar  
-```
-
-* You should get output something like the following as the code above discovers itself:
+docker run -e "SERVICE_TAGS=dev,myUniqueId002" --rm=true -P docker-discovery-registrator-consul-sample:latest java -DMY_SERVICE_NAME=docker-discovery-registrator-consul-sample -DMY_UNIQUE_TAG=myUniqueId002 -DCONSUL_IP=[YOUR_CONSUL_IP] -DCONSUL_PORT=8500 -DSERVICE_NAME_STRATEGY=org.bitsofinfo.docker.discovery.registrator.consul.MultiServiceNameSinglePortStrategy -jar /sample/docker-discovery-registrator-consul-1.0-RC1-fat.jar
 
 ```
-{"serviceName":"myDockerApp","serviceId":"default:silly_jennings:8080","exposedAddress":"192.168.0.99","exposedPort":32797,"mappedPort":8080,"tags":"[dev, myUniqueId001]"}
-{"serviceName":"myDockerApp","serviceId":"default:silly_jennings:8080","exposedAddress":"192.168.0.99","exposedPort":32798,"mappedPort":8443,"tags":"[dev, myUniqueId001]"}
+
+* Every 10 seconds, each instance of the sample container app, will report the discovery information about itself and its peers:
+
+```
+
 ```
 
 ## <a id="building"></a>Building from source

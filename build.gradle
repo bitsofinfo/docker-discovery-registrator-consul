@@ -2,10 +2,15 @@ buildscript {
 	repositories {
     	jcenter()
     }
+    
+    dependencies {
+  	 	classpath 'eu.appsatori:gradle-fatjar-plugin:0.3'  
+    }
 }
 
 plugins {
     id "com.jfrog.bintray" version "1.5"
+    id "eu.appsatori.fatjar" version "0.3"
 }
 
 group = 'org.bitsofinfo'
@@ -47,3 +52,12 @@ uploadArchives {
        }
     }
 }
+
+fatJar {
+  classifier 'fat'
+  manifest {
+    attributes 'Main-Class': 'org.bitsofinfo.docker.discovery.registrator.consul.sample.SampleContainerApp'
+  }
+}
+
+
