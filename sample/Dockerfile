@@ -7,7 +7,7 @@ MAINTAINER bitsofinfo.g@gmail.com
 
 RUN mkdir -p /sample
 
-ADD docker-discovery-registrator-consul-1.0-RC1-fat.jar /sample/sample.jar
+ADD sample.jar /sample/sample.jar
 
 EXPOSE 8080 8443
  
