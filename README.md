@@ -33,8 +33,8 @@ No official releases yet.
 ## <a id="requirements"></a>Requirements
 
 * Java 6+
-* Your application is running in a Docker container, and launched with Registrator consumed variables `-e SERVICE_[port]_NAME=[name]` and `-e SERVICE_TAGS=[tags..]`
-* Your Docker host has a [Registrator](https://github.com/gliderlabs/registrator) container running
+* Your application is running in a Docker container, using this library for discovery
+* Your Docker host has a [Registrator](https://github.com/gliderlabs/registrator) container running prior to launch of your app
 * The Registrator container is configured to use [Consul](https://consul.io/) as its registry backend
 
 ## <a id="mavengradle"></a>Maven/Gradle
@@ -59,90 +59,89 @@ coming soon
 * Review the code in [SampleContainerApp.java](src/main/java/org/bitsofinfo/docker/discovery/registrator/consul/sample/SampleContainerApp.java)
 
 * Have Consul running and available somewhere on your network, start it such as:
-```
-consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul -config-dir /path/to/consul.d/ -ui-dir /path/to/consul-web-ui -bind=0.0.0.0 -client=0.0.0.0
-```
+    ```
+    consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul -config-dir /path/to/consul.d/ -ui-dir /path/to/consul-web-ui -bind=0.0.0.0 -client=0.0.0.0
+    ```
 
 * On your Docker host ensure Registrator is running such as:
-```
-docker run -d --name=registrator --net=host --volume=/var/run/docker.sock:/tmp/docker.sock  gliderlabs/registrator:latest consul://[YOUR_CONSUL_IP]:8500
-```
+    ```
+    docker run -d --name=registrator --net=host --volume=/var/run/docker.sock:/tmp/docker.sock  gliderlabs/registrator:latest consul://[YOUR_CONSUL_IP]:8500
+    ```
 
 * In the root of the project:
 
-```
-cd sample/
-./build-image.sh
-```
+    ```
+    cd sample/
+    ./build-image.sh
+    ```
 
-```
-docker images
+    ```
+    docker images
 
-REPOSITORY                                    TAG                     IMAGE ID            CREATED             VIRTUAL SIZE
-docker-discovery-registrator-consul-sample    latest                  750dc9aa5052        18 minutes ago      651.5 MB
-```
+    REPOSITORY                                    TAG                     IMAGE ID            CREATED             VIRTUAL SIZE
+    docker-discovery-registrator-consul-sample    latest                  750dc9aa5052        18 minutes ago      651.5 MB
+    ```
 
 * Now run the sample image you built 3x, (you can do more if you want)
 
-```
-docker run -e "SERVICE_TAGS=dev,myUniqueId001" --rm=true -P docker-discovery-registrator-consul-sample:latest java -DMY_SERVICE_NAME=docker-discovery-registrator-consul-sample -DMY_UNIQUE_TAG=myUniqueId001 -DCONSUL_IP=[YOUR_CONSUL_IP] -DCONSUL_PORT=8500 -DSERVICE_NAME_STRATEGY=org.bitsofinfo.docker.discovery.registrator.consul.MultiServiceNameSinglePortStrategy -jar /sample/sample.jar
-
-docker run -e "SERVICE_TAGS=dev,myUniqueId002" --rm=true -P docker-discovery-registrator-consul-sample:latest java -DMY_SERVICE_NAME=docker-discovery-registrator-consul-sample -DMY_UNIQUE_TAG=myUniqueId002 -DCONSUL_IP=[YOUR_CONSUL_IP] -DCONSUL_PORT=8500 -DSERVICE_NAME_STRATEGY=org.bitsofinfo.docker.discovery.registrator.consul.MultiServiceNameSinglePortStrategy -jar /sample/sample.jar
-
-docker run -e "SERVICE_TAGS=dev,myUniqueId003" --rm=true -P docker-discovery-registrator-consul-sample:latest java -DMY_SERVICE_NAME=docker-discovery-registrator-consul-sample -DMY_UNIQUE_TAG=myUniqueId003 -DCONSUL_IP=[YOUR_CONSUL_IP] -DCONSUL_PORT=8500 -DSERVICE_NAME_STRATEGY=org.bitsofinfo.docker.discovery.registrator.consul.MultiServiceNameSinglePortStrategy -jar /sample/sample.jar
-
-```
+	```
+	docker run -e "SERVICE_TAGS=dev,myUniqueId001" --rm=true -P docker-discovery-registrator-consul-sample:latest java -DMY_SERVICE_NAME=docker-discovery-registrator-consul-sample -DMY_UNIQUE_TAG=myUniqueId001 -DCONSUL_IP=[YOUR_CONSUL_IP] -DCONSUL_PORT=8500 -DSERVICE_NAME_STRATEGY=org.bitsofinfo.docker.discovery.registrator.consul.MultiServiceNameSinglePortStrategy -jar /sample/sample.jar
+	
+	docker run -e "SERVICE_TAGS=dev,myUniqueId002" --rm=true -P docker-discovery-registrator-consul-sample:latest java -DMY_SERVICE_NAME=docker-discovery-registrator-consul-sample -DMY_UNIQUE_TAG=myUniqueId002 -DCONSUL_IP=[YOUR_CONSUL_IP] -DCONSUL_PORT=8500 -DSERVICE_NAME_STRATEGY=org.bitsofinfo.docker.discovery.registrator.consul.MultiServiceNameSinglePortStrategy -jar /sample/sample.jar
+	
+	docker run -e "SERVICE_TAGS=dev,myUniqueId003" --rm=true -P docker-discovery-registrator-consul-sample:latest java -DMY_SERVICE_NAME=docker-discovery-registrator-consul-sample -DMY_UNIQUE_TAG=myUniqueId003 -DCONSUL_IP=[YOUR_CONSUL_IP] -DCONSUL_PORT=8500 -DSERVICE_NAME_STRATEGY=org.bitsofinfo.docker.discovery.registrator.consul.MultiServiceNameSinglePortStrategy -jar /sample/sample.jar
+	```
 
 * Every 10 seconds, each instance of the sample container app, will report the discovery information about itself and its peers:
 
 
-From container one's perspective:
-```
-########## myUniqueId001 REPORTING: ##########
-MY SERVICES:
-/192.168.99.100:32846 -> container:8080 tags: [dev, myUniqueId001]
-/192.168.99.100:32845 -> container:8443 tags: [dev, myUniqueId001]
-
-
-MY PEER SERVICES:
-/192.168.99.100:32842 -> container:8080 tags: [dev, myUniqueId003]
-/192.168.99.100:32844 -> container:8080 tags: [dev, myUniqueId002]
-/192.168.99.100:32841 -> container:8443 tags: [dev, myUniqueId003]
-/192.168.99.100:32843 -> container:8443 tags: [dev, myUniqueId002]
-########## END myUniqueId001 ############
-```
-
-From container two's perspective:
-```
-########## myUniqueId002 REPORTING: ##########
-MY SERVICES:
-/192.168.99.100:32844 -> container:8080 tags: [dev, myUniqueId002]
-/192.168.99.100:32843 -> container:8443 tags: [dev, myUniqueId002]
-
-
-MY PEER SERVICES:
-/192.168.99.100:32842 -> container:8080 tags: [dev, myUniqueId003]
-/192.168.99.100:32846 -> container:8080 tags: [dev, myUniqueId001]
-/192.168.99.100:32841 -> container:8443 tags: [dev, myUniqueId003]
-/192.168.99.100:32845 -> container:8443 tags: [dev, myUniqueId001]
-########## END myUniqueId002 ############
-```
-
-From container three's perspective:
-```
-########## myUniqueId003 REPORTING: ##########
-MY SERVICES:
-/192.168.99.100:32842 -> container:8080 tags: [dev, myUniqueId003]
-/192.168.99.100:32841 -> container:8443 tags: [dev, myUniqueId003]
-
-
-MY PEER SERVICES:
-/192.168.99.100:32844 -> container:8080 tags: [dev, myUniqueId002]
-/192.168.99.100:32846 -> container:8080 tags: [dev, myUniqueId001]
-/192.168.99.100:32843 -> container:8443 tags: [dev, myUniqueId002]
-/192.168.99.100:32845 -> container:8443 tags: [dev, myUniqueId001]
-########## END myUniqueId003 ############
-```
+	From container one's perspective:
+	```
+	########## myUniqueId001 REPORTING: ##########
+	MY SERVICES:
+	/192.168.99.100:32846 -> container:8080 tags: [dev, myUniqueId001]
+	/192.168.99.100:32845 -> container:8443 tags: [dev, myUniqueId001]
+	
+	
+	MY PEER SERVICES:
+	/192.168.99.100:32842 -> container:8080 tags: [dev, myUniqueId003]
+	/192.168.99.100:32844 -> container:8080 tags: [dev, myUniqueId002]
+	/192.168.99.100:32841 -> container:8443 tags: [dev, myUniqueId003]
+	/192.168.99.100:32843 -> container:8443 tags: [dev, myUniqueId002]
+	########## END myUniqueId001 ############
+	```
+	
+	From container two's perspective:
+	```
+	########## myUniqueId002 REPORTING: ##########
+	MY SERVICES:
+	/192.168.99.100:32844 -> container:8080 tags: [dev, myUniqueId002]
+	/192.168.99.100:32843 -> container:8443 tags: [dev, myUniqueId002]
+	
+	
+	MY PEER SERVICES:
+	/192.168.99.100:32842 -> container:8080 tags: [dev, myUniqueId003]
+	/192.168.99.100:32846 -> container:8080 tags: [dev, myUniqueId001]
+	/192.168.99.100:32841 -> container:8443 tags: [dev, myUniqueId003]
+	/192.168.99.100:32845 -> container:8443 tags: [dev, myUniqueId001]
+	########## END myUniqueId002 ############
+	```
+	
+	From container three's perspective:
+	```
+	########## myUniqueId003 REPORTING: ##########
+	MY SERVICES:
+	/192.168.99.100:32842 -> container:8080 tags: [dev, myUniqueId003]
+	/192.168.99.100:32841 -> container:8443 tags: [dev, myUniqueId003]
+	
+	
+	MY PEER SERVICES:
+	/192.168.99.100:32844 -> container:8080 tags: [dev, myUniqueId002]
+	/192.168.99.100:32846 -> container:8080 tags: [dev, myUniqueId001]
+	/192.168.99.100:32843 -> container:8443 tags: [dev, myUniqueId002]
+	/192.168.99.100:32845 -> container:8443 tags: [dev, myUniqueId001]
+	########## END myUniqueId003 ############
+	```
 
 ## <a id="building"></a>Building from source
 
@@ -151,13 +150,13 @@ MY PEER SERVICES:
 * Include the built jar artifact located at `build/libs/docker-discovery-registrator-consul-[VERSION].jar` in your JVM based project
 
 * If not already present in your hazelcast application's Maven (pom.xml) or Gradle (build.gradle) dependencies section; ensure that these dependencies are present (versions may vary as appropriate):
-
-```
-compile group: 'com.orbitz.consul', name: 'consul-client', version:'0.10.0'
-compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
-compile 'org.glassfish.jersey.core:jersey-client:2.22.2'
-compile 'org.slf4j:slf4j-api:1.7.19'
-```
+	
+	```
+	compile group: 'com.orbitz.consul', name: 'consul-client', version:'0.10.0'
+	compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
+	compile 'org.glassfish.jersey.core:jersey-client:2.22.2'
+	compile 'org.slf4j:slf4j-api:1.7.19'
+	```
 
 
 ## <a id="tests"></a>Unit-tests
