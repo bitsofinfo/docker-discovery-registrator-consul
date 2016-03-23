@@ -13,10 +13,10 @@ import com.orbitz.consul.CatalogClient;
  *
  */
 public interface ServiceNameStrategy {
-	
-	public Collection<ServiceInfo> discover(CatalogClient catalogClient,
-									  		String serviceName,
-									  		Collection<Integer> ports,
-									  		Collection<String> mustMatchTags) throws Exception;
-	
+    
+    public Collection<ServiceInfo> discover(CatalogClient catalogClient,
+                                              String serviceName,
+                                              Collection<Integer> ports,
+                                              Collection<String> mustMatchTags) throws Exception;
+    
 }

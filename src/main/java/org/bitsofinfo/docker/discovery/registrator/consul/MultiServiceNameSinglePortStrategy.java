@@ -33,80 +33,80 @@ import com.orbitz.consul.CatalogClient;
  * 
  * GET /v1/catalog/services
  * 
-	 {
-	  "consul":[
-	  ],
-	  "my-service-name-8080":[
-	    "tag1",
-	    "tag2",
-	    "uniqueContainerId1",
-	    "uniqueContainerId2"
-	  ],
-	  "my-service-name-8443":[
-	    "tag1",
-	    "tag2",
-	    "uniqueContainerId1",
-	    "uniqueContainerId2"
-	  ]
-	}
-	
+     {
+      "consul":[
+      ],
+      "my-service-name-8080":[
+        "tag1",
+        "tag2",
+        "uniqueContainerId1",
+        "uniqueContainerId2"
+      ],
+      "my-service-name-8443":[
+        "tag1",
+        "tag2",
+        "uniqueContainerId1",
+        "uniqueContainerId2"
+      ]
+    }
+    
  *
  * GET /v1/catalog/service/my-service-name-8080
  * 
-	[
-	  {
-	    "Node":"my.consul.node",
-	    "Address":"192.168.0.100",
-	    "ServiceID":"default:admiring_mcclintock:8080",
-	    "ServiceName":"my-service-name-8080",
-	    "ServiceTags":[
-	      "tag1",
-	      "tag2",
-	      "uniqueContainerId1"
-	    ],
-	    "ServiceAddress":"192.168.99.100",
-	    "ServicePort":32770
-	  },
-	  {
-	    "Node":"my.consul.node",
-	    "Address":"192.168.0.100",
-	    "ServiceID":"default:agitated_franklin:8080",
-	    "ServiceName":"my-service-name-8080",
-	    "ServiceTags":[
-	      "tag1",
-	      "tag2"
-	      "uniqueContainerId2"
-	    ],
-	    "ServiceAddress":"192.168.99.100",
-	    "ServicePort":32775
-	  }
-	]
+    [
+      {
+        "Node":"my.consul.node",
+        "Address":"192.168.0.100",
+        "ServiceID":"default:admiring_mcclintock:8080",
+        "ServiceName":"my-service-name-8080",
+        "ServiceTags":[
+          "tag1",
+          "tag2",
+          "uniqueContainerId1"
+        ],
+        "ServiceAddress":"192.168.99.100",
+        "ServicePort":32770
+      },
+      {
+        "Node":"my.consul.node",
+        "Address":"192.168.0.100",
+        "ServiceID":"default:agitated_franklin:8080",
+        "ServiceName":"my-service-name-8080",
+        "ServiceTags":[
+          "tag1",
+          "tag2"
+          "uniqueContainerId2"
+        ],
+        "ServiceAddress":"192.168.99.100",
+        "ServicePort":32775
+      }
+    ]
 
  * 
  * @author bitsofinfo
  *
  */
 public class MultiServiceNameSinglePortStrategy extends ServiceNameStrategyBase implements ServiceNameStrategy {
-	
-	private static final Logger logger = LoggerFactory.getLogger(MultiServiceNameSinglePortStrategy.class);
-	
-	public Collection<ServiceInfo> discover(CatalogClient catalogClient, 
-											String serviceName,
-											Collection<Integer> ports, 
-											Collection<String> mustMatchTags) throws Exception {
+    
+    private static final Logger logger = LoggerFactory.getLogger(MultiServiceNameSinglePortStrategy.class);
+    
+    public Collection<ServiceInfo> discover(CatalogClient catalogClient, 
+                                            String serviceName,
+                                            Collection<Integer> ports, 
+                                            Collection<String> mustMatchTags) throws Exception {
 
-		Collection<ServiceInfo> services = new ArrayList<ServiceInfo>();
-		
-		// for each port, we need to append the port to the serviceName base
-		for (Integer port : ports) {
-			services.addAll(
-					super._discover(catalogClient, (serviceName+"-"+port.toString()), ports, mustMatchTags)
-					);
-			
-		}
-		
-		return services;
-		
-	}
+        Collection<ServiceInfo> services = new ArrayList<ServiceInfo>();
+        
+        // for each port, we need to append the port to the serviceName base
+        for (Integer port : ports) {
+            services.addAll(
+                    super._discover(catalogClient, (serviceName+"-"+port.toString()), ports, mustMatchTags)
+                    );
+            
+        }
+        
+        return services;
+        
+    }
 
 }
