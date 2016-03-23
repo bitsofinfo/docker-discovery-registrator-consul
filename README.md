@@ -11,7 +11,8 @@ for other services it provides or clustering groups it must form.
 * [Requirements](#requirements)
 * [Maven/Gradle install](#mavengradle)
 * [Features](#features)
-* [Usage](#usage)
+* [Usage Overview](#usageoverview)
+* [Running example](#runningexample)
 * [Build from source](#building)
 * [Unit tests](#tests)
 * [Related Info](#related)
@@ -54,31 +55,64 @@ coming soon
 * Permits a JVM based container application to self-discover all of its mapped ports and accessible ip address, as well of that as all of its peer "services" that share the same service name, ports and/or service tags, as set by Registrator in Consul.
 
 
-## <a id="usage"></a>Usage 
-
-### Overview
+## <a id="usageoverview"></a>Usage overview
 
 Its **highly recommended** that you walking the example below in the section below. Overall the concept and API is quite simple.
 
-1. You launch your container that utilizes this library, passing your container the required arguments (or via other configuration means) 
-about how to connect to Consul, its unique identifier, serviceName, and any "tags" it might need to know about related to discovery.
+1. You launch your container that utilizes this library, passing both Registrator (via `-e` args) and your container the required arguments (or via other configuration means) about how to connect to Consul, its unique identifier, serviceName, and any "tags" it might need to know about related to discovery.
 
 2. In your app's code, you create a new [ConsulDiscovery](src/main/java/org/bitsofinfo/docker/discovery/registrator/consul/ConsulDiscovery.java)
 instance, giving it the required constructor args or properties via the builder syntax for how to connect to Consul, its unique ID, serviceName,
 tags etc.
 
-3. Once constructed you can call the various methods on [ConsulDiscovery](src/main/java/org/bitsofinfo/docker/discovery/registrator/consul/ConsulDiscovery.java) such as `discoverPeers()`, `discoverMe()`, `discoverPeers(portFilter)`, `discoverMe(portFilter`, which returns a 
+3. Once constructed you can call the various methods on [ConsulDiscovery](src/main/java/org/bitsofinfo/docker/discovery/registrator/consul/ConsulDiscovery.java) such as `discoverPeers()`, `discoverMe()`, `discoverPeers(portFilter)`, `discoverMe(portFilter)`, which returns a 
 collection of [ServiceInfo](src/main/java/org/bitsofinfo/docker/discovery/registrator/consul/ServiceInfo.java) instances, each representing
 a specific `ip:port` binding for the participating node that shares the `service-name` as Registrator placed in Consul.
 
 4. There are two different strategies that can be used when setting up your [ConsulDiscovery](src/main/java/org/bitsofinfo/docker/discovery/registrator/consul/ConsulDiscovery.java) instance. They are as follows, (see javadoc in source for more details):
 
-  * [MultiServiceNameSinglePortStrategy](src/main/java/org/bitsofinfo/docker/discovery/registrator/consul/MultiServiceNameSinglePortStrategy.java) - See source code javadoc for details. used when you specify a Registrator consumed environment variable `-e SERVICE_[port]_NAME` or completely omit it entirely (i.e. you don't pass any `-e SERVICE_[port]_NAME=xxx` Registrator consumed variant. The result is there is a unique `<serviceName>-<port>` service registered in the Consul catalog by Registrator for each unique port exposed by your container. All nodes exposing a port are listed under the same `<serviceName>-<port>` in the Consul service catalog. See [Registrator doc](http://gliderlabs.com/registrator/latest/user/services/#service-name) 
+  * [MultiServiceNameSinglePortStrategy](src/main/java/org/bitsofinfo/docker/discovery/registrator/consul/MultiServiceNameSinglePortStrategy.java) - See source code javadoc for details. Used when you specify a Registrator consumed environment variable `-e SERVICE_[port]_NAME` or completely omit it entirely (i.e. you don't pass any `-e SERVICE_[port]_NAME=xxx`). The result is a unique `<serviceName>-<port>` service registered in the Consul catalog by Registrator for each unique port exposed by your container. All nodes exposing a port are listed under the same `<serviceName>-<port>` in the Consul service catalog. See [Registrator doc](http://gliderlabs.com/registrator/latest/user/services/#service-name) 
   
-  * [OneServiceNameMultiPortStrategy](src/main/java/org/bitsofinfo/docker/discovery/registrator/consul/OneServiceNameMultiPortStrategy.java) - See source code javadoc for details. Used when you specify a `-e SERVICE_NAME=xxx` shared service name syntax (note, there is NO port info in service name). The result is you end up with one service name in Consul yielding many one unique node:port listing for every port exposed by a node sharing that service name. See [Registrator doc](http://gliderlabs.com/registrator/latest/user/services/#service-name)
+  * [OneServiceNameMultiPortStrategy](src/main/java/org/bitsofinfo/docker/discovery/registrator/consul/OneServiceNameMultiPortStrategy.java) - See source code javadoc for details. Used when you specify a `-e SERVICE_NAME=xxx` shared service name syntax (note, there is NO port info in service name). The result is you end up with one service name in Consul yielding many unique `node:port` listings, one for every port exposed by a node sharing that service name. (i.e. if you have 2 ports per node, and 2 containers, the service listing yields 4 listings) See [Registrator doc](http://gliderlabs.com/registrator/latest/user/services/#service-name)
+  
+#### Sample code:
+
+```
+ConsulDiscovery c = new ConsulDiscovery()
+                        .setConsulIp("192.168.0.200")
+                        .setConsulPort(8500)
+                        
+                        // "service name" base in Consul that Registrator
+                        // will list this container-app under. Either just 
+                        // "serviceName" or "serviceName-port" depending on
+                        // what -e variable approach you took when launching
+                        // the container see: http://gliderlabs.com/registrator/latest/user/services/#service-name
+                        .setServiceName("my-app-name") 
+                        
+                         // both Registrator (via -e SERVICE_TAGS=[..,thisUniqueId001]) AND your app need this! 
+                        .setMyNodeUniqueTagId("thisUniqueId001") 
+                        
+                        // what ports you care about discovering info about
+                        .addPortToDiscover(8080)
+                        .addPortToDiscover(8443)
+                        
+                         // optional, additional tag to filter on
+                         // again Registrator  needs this too via (via -e SERVICE_TAGS=[staging,tag2,thisUniqueId001]) 
+                        .addMustHaveTag("staging")
+                        
+                        // the service name strategy to use, expained above, see JavaDoc in 
+                        // ServiceNameStrategy implementations for specifics
+                        .setServiceNameStrategyClass(MultiServiceNameSinglePortStrategy.class);
+                        
+// the port is optional, see Javadoc
+// yields a list of all ServiceInfo's for all nodes
+// other than THIS node, which have that port mapped.
+Collection<ServiceInfo> allServiceNodes = c.discoverPeers(8443);
+
+```
 
 
-### Running Example
+## <a id="runningexample"></a>Running example
 
 * The simplist way to see how to use this library is first, review the code in [SampleContainerApp.java](src/main/java/org/bitsofinfo/docker/discovery/registrator/consul/sample/SampleContainerApp.java). The API is quite simple and fairly straight forward.
 
