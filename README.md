@@ -54,16 +54,34 @@ coming soon
 * Permits a JVM based container application to self-discover all of its mapped ports and accessible ip address, as well of that as all of its peer "services" that share the same service name, ports and/or service tags, as set by Registrator in Consul.
 
 
-## <a id="usage"></a>Usage Sample
+## <a id="usage"></a>Usage 
 
-* Review the code in [SampleContainerApp.java](src/main/java/org/bitsofinfo/docker/discovery/registrator/consul/sample/SampleContainerApp.java)
+## Overview
 
-* Have Consul running and available somewhere on your network, start it such as:
+Its **highly recommended** that you walking the example below in the section below. Overall the concept and API is quite simple.
+
+1. You launch your container that utilizes this library, passing your container the required arguments (or via other configuration means) 
+about how to connect to Consul, its unique identifier and any "tags" it might need to know about related to discovery.
+
+2. In your app's code, you create a new [ConsulDiscovery](src/main/java/org/bitsofinfo/docker/discovery/registrator/consul/ConsulDiscovery.java)
+instance, giving it the required constructor args or properties via the builder syntax for how to connect to Consul, its unique ID, serviceName,
+tags etc.
+
+3. Once constructed you can call the various methods on [ConsulDiscovery](src/main/java/org/bitsofinfo/docker/discovery/registrator/consul/ConsulDiscovery.java) such as `discoverPeers()`, `discoverMe()`, `discoverPeers(portFilter)`, `discoverMe(portFilter`, which returns a 
+collection of [ServiceInfo](src/main/java/org/bitsofinfo/docker/discovery/registrator/consul/ServiceInfo.java) instances, each representing
+a specific `ip:port` binding for the participating node that shares the `service-name` as Registrator placed in Consul.
+
+
+## Running Example
+
+* The simplist way to see how to use this library is first, review the code in [SampleContainerApp.java](src/main/java/org/bitsofinfo/docker/discovery/registrator/consul/sample/SampleContainerApp.java). The API is quite simple and fairly straight forward.
+
+* Have Consul running and available somewhere on your network, start it such as: (adjust paths below)
     ```
     consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul -config-dir /path/to/consul.d/ -ui-dir /path/to/consul-web-ui -bind=0.0.0.0 -client=0.0.0.0
     ```
 
-* On your Docker host ensure Registrator is running such as:
+* On your Docker host ensure Registrator is running such as: 
     ```
     docker run -d --name=registrator --net=host --volume=/var/run/docker.sock:/tmp/docker.sock  gliderlabs/registrator:latest consul://[YOUR_CONSUL_IP]:8500
     ```
