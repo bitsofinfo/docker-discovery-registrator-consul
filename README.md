@@ -56,7 +56,7 @@ coming soon
 
 ## <a id="usage"></a>Usage 
 
-## Overview
+### Overview
 
 Its **highly recommended** that you walking the example below in the section below. Overall the concept and API is quite simple.
 
@@ -72,7 +72,7 @@ collection of [ServiceInfo](src/main/java/org/bitsofinfo/docker/discovery/regist
 a specific `ip:port` binding for the participating node that shares the `service-name` as Registrator placed in Consul.
 
 
-## Running Example
+### Running Example
 
 * The simplist way to see how to use this library is first, review the code in [SampleContainerApp.java](src/main/java/org/bitsofinfo/docker/discovery/registrator/consul/sample/SampleContainerApp.java). The API is quite simple and fairly straight forward.
 
