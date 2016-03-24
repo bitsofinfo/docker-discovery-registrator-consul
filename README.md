@@ -180,7 +180,7 @@ Collection<ServiceInfo> allServiceNodes = c.discoverPeers(8443);
     docker-discovery-registrator-consul-sample    latest                  750dc9aa5052        18 minutes ago      651.5 MB
     ```
 
-* Now run the sample image you built 3x, (you can do more if you want). NOTE! Change the "unique id" tag and system property for each instance launched.
+* Now run the sample image you built 3x, (you can do more if you want). NOTE! Be sure to adjust the `-DMY_UNIQUE_TAG=`, `-DCONSUL_IP=[YOUR_CONSUL_IP]`, and ` -e "SERVICE_TAGS=dev,myUniqueId003"` properties below in each command for each instance launched to give it a unique id, and correct consul ip.
 
 	```
 	docker run -e "SERVICE_TAGS=dev,myUniqueId001" --rm=true -P docker-discovery-registrator-consul-sample:latest java -DMY_SERVICE_NAME=docker-discovery-registrator-consul-sample -DMY_UNIQUE_TAG=myUniqueId001 -DCONSUL_IP=[YOUR_CONSUL_IP] -DCONSUL_PORT=8500 -DSERVICE_NAME_STRATEGY=org.bitsofinfo.docker.discovery.registrator.consul.MultiServiceNameSinglePortStrategy -jar /sample/sample.jar
