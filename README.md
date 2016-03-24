@@ -1,9 +1,9 @@
 # docker-discovery-registrator-consul
 
-Service discovery library for JVM based applications running in Docker containers that use the Registrator service registry bridge with Consul as a backend. 
+Service discovery library for JVM based applications running in Docker containers that use the [Registrator](https://github.com/gliderlabs/registrator) service registry bridge with [Consul](https://consul.io/) as a backend. 
 
 The purpose of this library is for "self-discovery" from within your JVM based Docker application where you need to discover what
-your accessible docker-host bound IP and mapped port(s) are. This is critical if your container has to do further peer discovery
+your accessible docker-host bound IP and mapped port(s) are, as well as your peers within the same service. This is critical if your container has to do further peer discovery
 for other services it provides or clustering groups it must form.
 
 * [Status](#status)
@@ -20,6 +20,7 @@ for other services it provides or clustering groups it must form.
 * [Notes](#notes)
 * [Docker info](#docker)
 
+![Diagram of docker discovery consul registrator](/docs/diag1.png "Diagram1")
 
 ## <a id="status"></a>Status
 
@@ -27,9 +28,9 @@ Beta code. Master branch available only.
 
 ## <a id="releases"></a>Releases
 
-No official releases yet.
-
 * MASTER - in progress, this README refers to what is in the master branch. Switch to relevant RELEASE tag above to see that versions README
+
+* [1.0-RC1](https://github.com/bitsofinfo/docker-discovery-registrator-consul/releases/tag/1.0-RC1)
 
 ## <a id="requirements"></a>Requirements
 
@@ -44,11 +45,50 @@ To use this discovery strategy in your Maven or Gradle project use the dependenc
 
 ### Gradle:
 
-coming soon
+```
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.bitsofinfo:docker-discovery-registrator-consul:1.0-RC1'
+
+    // include your preferred javax.ws.rs-api implementation
+    // (for the OrbitzWorldwide/consul-client dependency)
+    // for example below:
+    compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
+    compile 'org.glassfish.jersey.core:jersey-client:2.22.2'
+    compile 'org.slf4j:slf4j-api:1.7.19'
+}
+```
 
 ### Maven:
 
-coming soon
+```
+<dependencies>
+    <dependency>
+        <groupId>org.bitsofinfo</groupId>
+        <artifactId>docker-discovery-registrator-consul</artifactId>
+        <version>1.0-RC1</version>
+    </dependency>
+
+    <!-- include your preferred javax.ws.rs-api
+         (for the https://github.com/OrbitzWorldwide/consul-client dependency)
+         implementation - see gradle example above
+    -->
+</dependencies>
+
+<repositories>
+    <repository>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+        <id>central</id>
+        <name>bintray</name>
+        <url>http://jcenter.bintray.com</url>
+    </repository>
+</repositories>
+```
 
 ## <a id="features"></a>Features
 

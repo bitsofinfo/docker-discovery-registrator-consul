@@ -41,16 +41,47 @@ dependencies {
     testCompile 'junit:junit:4.+'
 }
 
-test {
-    systemProperties 'property': 'value'
+
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('bintrayUser')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('bintrayApiKey')
+    publications = ['dockerDiscoveryRegistratorConsul']
+    pkg {
+        repo = 'maven'
+        name = 'docker-discovery-registrator-consul'
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/bitsofinfo/docker-discovery-registrator-consul'
+        publicDownloadNumbers = true
+        version {
+            name = project.property('version')
+            desc = project.property('version') + " : " + project.property('description')
+            released  = new Date()
+            vcsTag = project.property('version')
+        }
+    }
 }
 
-uploadArchives {
-    repositories {
-       flatDir {
-           dirs 'repos'
-       }
+publishing {
+    publications {
+        dockerDiscoveryRegistratorConsul(MavenPublication) {
+            from components.java
+            groupId project.property('group')
+            artifactId 'docker-discovery-registrator-consul'
+            version project.property('version')
+
+            artifact sourcesJar
+        }
     }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+
+artifacts {
+    archives sourcesJar
 }
 
 fatJar {
