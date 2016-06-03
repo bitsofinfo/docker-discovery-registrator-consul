@@ -265,6 +265,7 @@ Coming soon
 
 * https://www.consul.io
 * https://github.com/gliderlabs/registrator
+* https://github.com/docker/docker/issues/3778
 
 ## <a id="todo"></a>Todo
 
