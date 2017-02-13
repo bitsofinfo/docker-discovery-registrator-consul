@@ -1,5 +1,6 @@
 package org.bitsofinfo.docker.discovery.registrator.consul;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -38,6 +39,9 @@ public class ConsulDiscovery {
 
     private String consulIp;
     private int consulPort;
+    
+    private URL consulHostPortUrl;
+    private String consulAclToken;
     private String serviceName;
     private Collection<Integer> portsToDiscover = new ArrayList<Integer>();
     private Collection<String> mustHaveTags = new ArrayList<String>();
@@ -53,16 +57,16 @@ public class ConsulDiscovery {
     /**
      * Constructor when not using builder syntax
      * 
-     * @param consulIp
-     * @param consulPort
+     * @param consulHostPortUrl
+     * @param optionalConsulAclToken
      * @param serviceName
      * @param myNodeUniqueTagId
      * @param portsToDiscover
      * @param mustHaveTags
      * @param serviceNameStrategyClass
      */
-    public ConsulDiscovery(String consulIp, 
-                          int consulPort, 
+    public ConsulDiscovery(URL consulHostPortUrl, 
+                          String optionalConsulAclToken,
                           String serviceName,
                           String myNodeUniqueTagId,
                           Collection<Integer> portsToDiscover,
@@ -75,12 +79,55 @@ public class ConsulDiscovery {
         }
         this.mustHaveTags = mustHaveTags;
         
-        this.consulIp = consulIp;
-        this.consulPort = consulPort;
+        this.consulHostPortUrl = consulHostPortUrl;
         this.serviceName = serviceName;
         this.portsToDiscover = portsToDiscover;
         this.serviceNameStrategyClass = serviceNameStrategyClass;
         this.myNodeUniqueTagId = myNodeUniqueTagId;
+        this.consulAclToken = optionalConsulAclToken;
+    }
+    
+    /**
+     * Constructor when not using builder syntax
+     * 
+     * @param consulIp
+     * @param consulPort
+     * @param optionalConsulAclToken
+     * @param serviceName
+     * @param myNodeUniqueTagId
+     * @param portsToDiscover
+     * @param mustHaveTags
+     * @param serviceNameStrategyClass
+     */
+    public ConsulDiscovery(String consulIp, 
+                          int consulPort, 
+                          String optionalConsulAclToken,
+                          String serviceName,
+                          String myNodeUniqueTagId,
+                          Collection<Integer> portsToDiscover,
+                          Collection<String> mustHaveTags,
+                          Class<? extends ServiceNameStrategy> serviceNameStrategyClass) {
+
+    	super();
+    	
+    	try {
+    		this.consulHostPortUrl = new URL("http://"+consulIp+":"+consulPort);
+    	
+    	} catch(Exception e) {
+    		throw new RuntimeException("Could not construct ConsulDiscovery: " + e.getMessage(),e);
+    	}
+    	
+        if (mustHaveTags == null) {
+            mustHaveTags = new ArrayList<String>();
+        }
+        this.mustHaveTags = mustHaveTags;
+        
+        this.serviceName = serviceName;
+        this.portsToDiscover = portsToDiscover;
+        this.serviceNameStrategyClass = serviceNameStrategyClass;
+        this.myNodeUniqueTagId = myNodeUniqueTagId;
+        this.consulAclToken = optionalConsulAclToken;
+        
     }
     
     /**
@@ -222,9 +269,16 @@ public class ConsulDiscovery {
         
         try {
             Builder consulBuilder = Consul.builder();
-            Consul consul = consulBuilder.withHostAndPort(HostAndPort.fromParts(this.consulIp, this.consulPort)).build();
+            
+            consulBuilder = consulBuilder.withUrl(this.consulHostPortUrl);
+            
+            if (this.consulAclToken != null && !this.consulAclToken.trim().isEmpty()) {
+            	consulBuilder.withAclToken(consulAclToken);
+            }
+            
+            Consul consul = consulBuilder.build();
             catalogClient = consul.catalogClient();
-            logger.debug("Configured to interrogate Consul @ " + this.consulIp + ":" + this.consulPort);
+            logger.debug("Configured to interrogate Consul @ " + this.consulHostPortUrl);
             
         } catch(Exception e) {
             throw new Exception("Unexpected error building Consul CatalogClient: " + e.getMessage(),e);
@@ -239,15 +293,51 @@ public class ConsulDiscovery {
         
         
     }    
+    
+    public ConsulDiscovery setConsulUrl(URL url) {
+    	this.consulHostPortUrl = url;
+    	return this;
+    }
+    
+    public ConsulDiscovery setConsulAclToken(String token) {
+    	this.consulAclToken = token;
+    	return this;
+    }
 
+    /**
+     * @deprecated use setConsulUrl instead
+     * @param consulIp
+     * @return
+     */
+    @Deprecated
     public ConsulDiscovery setConsulIp(String consulIp) {
         this.consulIp = consulIp;
+        if (this.consulPort > 0) {
+        	try {
+        		this.consulHostPortUrl = new URL("http://"+this.consulIp+":"+this.consulPort);
+	        } catch(Exception e) {
+	    		throw new RuntimeException("Could not construct ConsulDiscovery: " + e.getMessage(),e);
+	    	}
+        }
         return this;
     }
 
 
+    /**
+     * @deprecated use setConsulUrl instead
+     * @param consulPort
+     * @return
+     */
+    @Deprecated
     public ConsulDiscovery setConsulPort(int consulPort) {
         this.consulPort = consulPort;
+        if (this.consulIp != null) {
+        	try {
+        		this.consulHostPortUrl = new URL("http://"+this.consulIp+":"+this.consulPort);
+	        } catch(Exception e) {
+	    		throw new RuntimeException("Could not construct ConsulDiscovery: " + e.getMessage(),e);
+	    	}
+        }
         return this;
     }
 

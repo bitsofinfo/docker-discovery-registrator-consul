@@ -30,6 +30,7 @@ Beta code. Master branch available only.
 
 * MASTER - in progress, this README refers to what is in the master branch. Switch to relevant RELEASE tag above to see that versions README
 
+* [1.0-RC2](https://github.com/bitsofinfo/docker-discovery-registrator-consul/releases/tag/1.0-RC2)
 * [1.0-RC1](https://github.com/bitsofinfo/docker-discovery-registrator-consul/releases/tag/1.0-RC1)
 
 ## <a id="requirements"></a>Requirements
@@ -51,7 +52,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.bitsofinfo:docker-discovery-registrator-consul:1.0-RC1'
+    compile 'org.bitsofinfo:docker-discovery-registrator-consul:1.0-RC2'
 
     // include your preferred javax.ws.rs-api implementation
     // (for the OrbitzWorldwide/consul-client dependency)
@@ -69,7 +70,7 @@ dependencies {
     <dependency>
         <groupId>org.bitsofinfo</groupId>
         <artifactId>docker-discovery-registrator-consul</artifactId>
-        <version>1.0-RC1</version>
+        <version>1.0-RC2</version>
     </dependency>
 
     <!-- include your preferred javax.ws.rs-api
@@ -119,8 +120,7 @@ a specific `ip:port` binding for the participating node that shares the `service
 
 ```
 ConsulDiscovery c = new ConsulDiscovery()
-                        .setConsulIp("192.168.0.200")
-                        .setConsulPort(8500)
+                        .setConsulUrl(new URL("http://192.168.0.200:8500"))
                         
                         // "service name" base in Consul that Registrator
                         // will list this container-app under. Either just 
@@ -128,6 +128,9 @@ ConsulDiscovery c = new ConsulDiscovery()
                         // what -e variable approach you took when launching
                         // the container see: http://gliderlabs.com/registrator/latest/user/services/#service-name
                         .setServiceName("my-app-name") 
+                        
+                        // optional acl token
+                        // .setConsulAclToken("some-token")
                         
                          // both Registrator (via -e SERVICE_TAGS=[..,thisUniqueId001]) AND your app need this! 
                         .setMyNodeUniqueTagId("thisUniqueId001") 
@@ -180,14 +183,14 @@ Collection<ServiceInfo> allServiceNodes = c.discoverPeers(8443);
     docker-discovery-registrator-consul-sample    latest                  750dc9aa5052        18 minutes ago      651.5 MB
     ```
 
-* Now run the sample image you built 3x, (you can do more if you want). NOTE! Be sure to adjust the `-DMY_UNIQUE_TAG=`, `-DCONSUL_IP=[YOUR_CONSUL_IP]`, and ` -e "SERVICE_TAGS=dev,myUniqueId003"` properties below in each command for each instance launched to give it a unique id, and correct consul ip.
+* Now run the sample image you built 3x, (you can do more if you want). NOTE! Be sure to adjust the `-DMY_UNIQUE_TAG=`, `-DCONSUL_URL=http(s)://[YOUR_CONSUL_IP]:8500`, and ` -e "SERVICE_TAGS=dev,myUniqueId003"` properties below in each command for each instance launched to give it a unique id, and correct consul ip.
 
 	```
-	docker run -e "SERVICE_TAGS=dev,myUniqueId001" --rm=true -P docker-discovery-registrator-consul-sample:latest java -DMY_SERVICE_NAME=docker-discovery-registrator-consul-sample -DMY_UNIQUE_TAG=myUniqueId001 -DCONSUL_IP=[YOUR_CONSUL_IP] -DCONSUL_PORT=8500 -DSERVICE_NAME_STRATEGY=org.bitsofinfo.docker.discovery.registrator.consul.MultiServiceNameSinglePortStrategy -jar /sample/sample.jar
+	docker run -e "SERVICE_TAGS=dev,myUniqueId001" --rm=true -P docker-discovery-registrator-consul-sample:latest java -DMY_SERVICE_NAME=docker-discovery-registrator-consul-sample -DMY_UNIQUE_TAG=myUniqueId001 -DCONSUL_URL=http(s)://[YOUR_CONSUL_IP]:8500 -DSERVICE_NAME_STRATEGY=org.bitsofinfo.docker.discovery.registrator.consul.MultiServiceNameSinglePortStrategy -jar /sample/sample.jar
 	
-	docker run -e "SERVICE_TAGS=dev,myUniqueId002" --rm=true -P docker-discovery-registrator-consul-sample:latest java -DMY_SERVICE_NAME=docker-discovery-registrator-consul-sample -DMY_UNIQUE_TAG=myUniqueId002 -DCONSUL_IP=[YOUR_CONSUL_IP] -DCONSUL_PORT=8500 -DSERVICE_NAME_STRATEGY=org.bitsofinfo.docker.discovery.registrator.consul.MultiServiceNameSinglePortStrategy -jar /sample/sample.jar
+	docker run -e "SERVICE_TAGS=dev,myUniqueId002" --rm=true -P docker-discovery-registrator-consul-sample:latest java -DMY_SERVICE_NAME=docker-discovery-registrator-consul-sample -DMY_UNIQUE_TAG=myUniqueId002 -DCONSUL_URL=http(s)://[YOUR_CONSUL_IP]:8500 -DSERVICE_NAME_STRATEGY=org.bitsofinfo.docker.discovery.registrator.consul.MultiServiceNameSinglePortStrategy -jar /sample/sample.jar
 	
-	docker run -e "SERVICE_TAGS=dev,myUniqueId003" --rm=true -P docker-discovery-registrator-consul-sample:latest java -DMY_SERVICE_NAME=docker-discovery-registrator-consul-sample -DMY_UNIQUE_TAG=myUniqueId003 -DCONSUL_IP=[YOUR_CONSUL_IP] -DCONSUL_PORT=8500 -DSERVICE_NAME_STRATEGY=org.bitsofinfo.docker.discovery.registrator.consul.MultiServiceNameSinglePortStrategy -jar /sample/sample.jar
+	docker run -e "SERVICE_TAGS=dev,myUniqueId003" --rm=true -P docker-discovery-registrator-consul-sample:latest java -DMY_SERVICE_NAME=docker-discovery-registrator-consul-sample -DMY_UNIQUE_TAG=myUniqueId003 -DCONSUL_URL=http(s)://[YOUR_CONSUL_IP]:8500 -DSERVICE_NAME_STRATEGY=org.bitsofinfo.docker.discovery.registrator.consul.MultiServiceNameSinglePortStrategy -jar /sample/sample.jar
 	```
 
 * Every 10 seconds, each instance of the sample container app, will report the discovery information about itself and its peers:
@@ -250,7 +253,7 @@ Collection<ServiceInfo> allServiceNodes = c.discoverPeers(8443);
 * If not already present in your hazelcast application's Maven (pom.xml) or Gradle (build.gradle) dependencies section; ensure that these dependencies are present (versions may vary as appropriate):
 	
 	```
-	compile group: 'com.orbitz.consul', name: 'consul-client', version:'0.10.0'
+	compile group: 'com.orbitz.consul', name: 'consul-client', version:'0.13.11'
 	compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
 	compile 'org.glassfish.jersey.core:jersey-client:2.22.2'
 	compile 'org.slf4j:slf4j-api:1.7.19'

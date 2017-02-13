@@ -1,5 +1,6 @@
 package org.bitsofinfo.docker.discovery.registrator.consul;
 
+import java.net.URL;
 import java.util.Collection;
 
 import org.junit.Assert;
@@ -13,8 +14,7 @@ public class ConsulDiscoveryTest {
         
         try {
             ConsulDiscovery consulDiscovery = new ConsulDiscovery()
-                                                    .setConsulIp("192.168.0.208")
-                                                    .setConsulPort(8500)
+                                                    .setConsulUrl(new URL("http://192.168.0.208:8500"))
                                                     .setServiceName("xxxxx") 
                                                     .setMyNodeUniqueTagId("myuuid999999999999")
                                                     .addPortToDiscover(8080)

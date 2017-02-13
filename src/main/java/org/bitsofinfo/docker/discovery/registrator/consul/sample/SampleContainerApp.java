@@ -1,5 +1,6 @@
 package org.bitsofinfo.docker.discovery.registrator.consul.sample;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -61,8 +62,7 @@ public class SampleContainerApp implements Runnable {
 
             // construct our ConsulDiscovery using builder methods
             consulDiscovery = new ConsulDiscovery()
-                    .setConsulIp(System.getProperty("CONSUL_IP"))
-                    .setConsulPort(Integer.valueOf(System.getProperty("CONSUL_PORT")))
+                    .setConsulUrl(new URL(System.getProperty("CONSUL_URL")))
                     .setServiceName(System.getProperty("MY_SERVICE_NAME")) 
                     .setMyNodeUniqueTagId(myUniqueTag)
                     .addPortToDiscover(8080)
