@@ -2,6 +2,7 @@ package org.bitsofinfo.docker.discovery.registrator.consul;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -34,7 +35,14 @@ public abstract class ServiceNameStrategyBase {
         ConsulResponse<List<CatalogService>> resp = catalogClient.getService(serviceName);
         List<CatalogService> serviceList = resp.getResponse();
         
+        logger.trace("_discover() catalogClient.getService("+serviceName+") returned " + serviceList.size() + " results..");
+        
         for (CatalogService srv : serviceList) {
+        	
+        	logger.trace("_discover() evaluating consul service: name:" + srv.getServiceName() + 
+        				" serviceId:" + srv.getServiceId() + 
+        				" servicePort:" + srv.getServicePort() +
+        				" tags: " + Arrays.toString(srv.getServiceTags().toArray()));
             
             if (matchesTags(srv.getServiceTags(),mustMatchTags)) {
                 
@@ -47,7 +55,16 @@ public abstract class ServiceNameStrategyBase {
                     // if we care about this mapped port... capture the service 
                     if (ports.contains(mappedPort)) {
                         
-                        InetAddress exposedAddress = InetAddress.getByName(srv.getServiceAddress());
+                    	InetAddress exposedAddress = null;
+                    	if (srv.getServiceAddress() != null) {
+                    		exposedAddress = InetAddress.getByName(srv.getServiceAddress());
+                    	} else {
+                    		// https://www.consul.io/docs/agent/http/catalog.html#ServiceAddress
+                    		logger.trace("_discover() CatalogService.serviceAddress is null... "
+                    				+ "falling back to address["+srv.getAddress()+"]");
+                    		exposedAddress = InetAddress.getByName(srv.getAddress());
+                    	}
+                    	
                         ServiceInfo info = new ServiceInfo(srv.getServiceName(),
                                                             srv.getServiceId(),
                                                             exposedAddress,
@@ -56,12 +73,25 @@ public abstract class ServiceNameStrategyBase {
                                                             srv.getServiceTags());
                         discoveredServices.add(info);
                         
-                        logger.debug("Discovered ServiceInfo: " + info);
+                        logger.debug("_discover() Discovered ServiceInfo: " + info);
+                        
+                    } else {
+                    	logger.trace("_discover() serviceNameToFind=" + serviceName + 
+                    			", skipping consul service: " + srv.getServiceName() + 
+                    			" as its mappedPort[" + mappedPort + "] is not in list of "
+                    					+ "ports we care about: " + Arrays.toString(ports.toArray()) );;
                     }
                     
                 } catch(Exception e) {
-                    throw new Exception("discover() Unexpected error processing service: " + srv.getServiceName() + " " + e.getMessage(),e);
+                    throw new Exception("discover() Unexpected error processing "
+                    		+ "service: " + srv.getServiceName() + " " + e.getMessage(),e);
                 }
+                
+            } else {
+            	logger.trace("_discover() serviceNameToFind=" + serviceName + 
+            			" skipping consul service: " + srv.getServiceName() + 
+            			" with tags: " + (srv.getServiceTags() != null ? Arrays.toString(srv.getServiceTags().toArray()) : "[no tags]") + 
+            			" as they don't contain mustMatchTags: " + Arrays.toString(mustMatchTags.toArray()));
             }
             
         }

@@ -14,11 +14,11 @@ public class ConsulDiscoveryTest {
         
         try {
             ConsulDiscovery consulDiscovery = new ConsulDiscovery()
-                                                    .setConsulUrl(new URL("http://192.168.0.208:8500"))
-                                                    .setServiceName("xxxxx") 
+                                                    .setConsulUrl(new URL("http://192.168.0.148:8500"))
+                                                    .setServiceName("consul") 
+                                                    .setConsulAclToken("123")
                                                     .setMyNodeUniqueTagId("myuuid999999999999")
-                                                    .addPortToDiscover(8080)
-                                                    .addPortToDiscover(8443)
+                                                    .addPortToDiscover(8500)
                                                     .addMustHaveTag("dev")
                                                     //.setServiceNameStrategyClass(OneServiceNameMultiPortStrategy.class);
                                                     .setServiceNameStrategyClass(MultiServiceNameSinglePortStrategy.class);
@@ -36,8 +36,9 @@ public class ConsulDiscoveryTest {
             }
         
         } catch(Exception e) {
+        	e.printStackTrace();
             Assert.assertFalse(true);
-            e.printStackTrace();
+            
         }
     }
     

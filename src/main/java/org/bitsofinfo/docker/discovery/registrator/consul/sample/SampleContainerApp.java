@@ -65,6 +65,7 @@ public class SampleContainerApp implements Runnable {
                     .setConsulUrl(new URL(System.getProperty("CONSUL_URL")))
                     .setServiceName(System.getProperty("MY_SERVICE_NAME")) 
                     .setMyNodeUniqueTagId(myUniqueTag)
+                    .setConsulAclToken(System.getProperty("CONSUL_ACL_TOKEN"))
                     .addPortToDiscover(8080)
                     .addPortToDiscover(8443)
                     .setServiceNameStrategyClass(

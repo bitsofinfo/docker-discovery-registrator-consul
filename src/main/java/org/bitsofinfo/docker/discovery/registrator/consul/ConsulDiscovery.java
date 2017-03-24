@@ -2,6 +2,7 @@ package org.bitsofinfo.docker.discovery.registrator.consul;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -85,6 +86,7 @@ public class ConsulDiscovery {
         this.serviceNameStrategyClass = serviceNameStrategyClass;
         this.myNodeUniqueTagId = myNodeUniqueTagId;
         this.consulAclToken = optionalConsulAclToken;
+
     }
     
     /**
@@ -130,6 +132,17 @@ public class ConsulDiscovery {
         
     }
     
+    private void logConfiguration() {
+        
+        logger.trace("ConsulDiscovery() configured with: consulHostPortUrl: " + this.consulHostPortUrl + 
+    			" serviceName: " + serviceName +
+    			" portsToDiscover: " + portsToDiscover +
+    			" serviceNameStrategyClass: " + serviceNameStrategyClass + 
+    			" myNodeUniqueTagId: " + myNodeUniqueTagId +
+    			" mustHaveTags: " + (mustHaveTags != null ? Arrays.toString(mustHaveTags.toArray()) : " none ") +
+    			" consulAclToken: " + (consulAclToken != null ? consulAclToken.length() : " none "));
+    }
+    
     /**
      * Get all ServiceInfo objects that match our configuration for 
      * matching servicename, tags, ports AND tag "myNodeUniqueTagId"
@@ -138,6 +151,7 @@ public class ConsulDiscovery {
      * @throws Exception
      */
     public Collection<ServiceInfo> discoverMe() throws Exception {
+    	
         // get all with configured tags + our unique id which will
         // be only us.
         Collection<String> filters = new ArrayList<String>();
@@ -251,6 +265,10 @@ public class ConsulDiscovery {
     
     
     private Collection<ServiceInfo> _discover(Collection<String> mustHaveTags) throws Exception {
+    	
+
+    	logConfiguration();
+    	
         
         // initialize the service name strategy
         ServiceNameStrategy serviceNameStrategy = null;

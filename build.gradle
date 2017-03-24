@@ -37,8 +37,9 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.19'
     
     
-	testCompile 'org.slf4j:log4j-over-slf4j:1.7.19'
+	testCompile  group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
     testCompile 'junit:junit:4.+'
+    testCompile  group: 'log4j', name: 'log4j', version: '1.2.17'
 }
 
 

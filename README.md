@@ -15,6 +15,7 @@ for other services it provides or clustering groups it must form.
 * [Running example](#runningexample)
 * [Build from source](#building)
 * [Unit tests](#tests)
+* [Logging](#logging)
 * [Related Info](#related)
 * [Todo](#todo)
 * [Notes](#notes)
@@ -30,6 +31,7 @@ Beta code. Master branch available only.
 
 * MASTER - in progress, this README refers to what is in the master branch. Switch to relevant RELEASE tag above to see that versions README
 
+* [1.0-RC3](https://github.com/bitsofinfo/docker-discovery-registrator-consul/releases/tag/1.0-RC3)
 * [1.0-RC2](https://github.com/bitsofinfo/docker-discovery-registrator-consul/releases/tag/1.0-RC2)
 * [1.0-RC1](https://github.com/bitsofinfo/docker-discovery-registrator-consul/releases/tag/1.0-RC1)
 
@@ -52,7 +54,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.bitsofinfo:docker-discovery-registrator-consul:1.0-RC2'
+    compile 'org.bitsofinfo:docker-discovery-registrator-consul:1.0-RC3'
 
     // include your preferred javax.ws.rs-api implementation
     // (for the OrbitzWorldwide/consul-client dependency)
@@ -70,7 +72,7 @@ dependencies {
     <dependency>
         <groupId>org.bitsofinfo</groupId>
         <artifactId>docker-discovery-registrator-consul</artifactId>
-        <version>1.0-RC2</version>
+        <version>1.0-RC3</version>
     </dependency>
 
     <!-- include your preferred javax.ws.rs-api
@@ -153,6 +155,11 @@ ConsulDiscovery c = new ConsulDiscovery()
 Collection<ServiceInfo> allServiceNodes = c.discoverPeers(8443);
 
 ```
+
+## <a id="logging"></a> Logging
+
+This library uses slf4j. If you enable TRACE logging for `org.bitsofinfo.docker.discovery.registrator.consul` additional verbose
+debugging information will appear
 
 
 ## <a id="runningexample"></a>Running example
