@@ -30,7 +30,7 @@ targetCompatibility = 1.6
 
 dependencies {
     
-    compile group: 'com.orbitz.consul', name: 'consul-client', version:'0.13.11'
+    compile group: 'com.orbitz.consul', name: 'consul-client', version:'0.17.1'
     compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
     compile 'org.glassfish.jersey.core:jersey-client:2.22.2'
     

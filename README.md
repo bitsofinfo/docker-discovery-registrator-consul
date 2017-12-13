@@ -31,6 +31,7 @@ Beta code. Master branch available only.
 
 * MASTER - in progress, this README refers to what is in the master branch. Switch to relevant RELEASE tag above to see that versions README
 
+* [1.0-RC4](https://github.com/bitsofinfo/docker-discovery-registrator-consul/releases/tag/1.0-RC4) - upgraded consul-client to 0.17.1
 * [1.0-RC3](https://github.com/bitsofinfo/docker-discovery-registrator-consul/releases/tag/1.0-RC3)
 * [1.0-RC2](https://github.com/bitsofinfo/docker-discovery-registrator-consul/releases/tag/1.0-RC2)
 * [1.0-RC1](https://github.com/bitsofinfo/docker-discovery-registrator-consul/releases/tag/1.0-RC1)
@@ -54,7 +55,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.bitsofinfo:docker-discovery-registrator-consul:1.0-RC3'
+    compile 'org.bitsofinfo:docker-discovery-registrator-consul:1.0-RC4'
 
     // include your preferred javax.ws.rs-api implementation
     // (for the OrbitzWorldwide/consul-client dependency)
@@ -72,7 +73,7 @@ dependencies {
     <dependency>
         <groupId>org.bitsofinfo</groupId>
         <artifactId>docker-discovery-registrator-consul</artifactId>
-        <version>1.0-RC3</version>
+        <version>1.0-RC4</version>
     </dependency>
 
     <!-- include your preferred javax.ws.rs-api
@@ -260,7 +261,7 @@ debugging information will appear
 * If not already present in your hazelcast application's Maven (pom.xml) or Gradle (build.gradle) dependencies section; ensure that these dependencies are present (versions may vary as appropriate):
 	
 	```
-	compile group: 'com.orbitz.consul', name: 'consul-client', version:'0.13.11'
+	compile group: 'com.orbitz.consul', name: 'consul-client', version:'0.17.1'
 	compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
 	compile 'org.glassfish.jersey.core:jersey-client:2.22.2'
 	compile 'org.slf4j:slf4j-api:1.7.19'
