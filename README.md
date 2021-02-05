@@ -27,10 +27,12 @@ for other services it provides or clustering groups it must form.
 
 Beta code. Master branch available only.
 
+**IMPORTANT: TAG: 1.0-RC4-20210205**: All tags prior to this might not end up in maven central. However this tag is a re-publish of 1.0-RC4 to be made available in Maven Central due to the sunset of Bintray/JCenter in 2021. 
 ## <a id="releases"></a>Releases
 
 * MASTER - in progress, this README refers to what is in the master branch. Switch to relevant RELEASE tag above to see that versions README
 
+* [1.0-RC4-20210205](https://github.com/bitsofinfo/docker-discovery-registrator-consul/releases/tag/1.0-RC4-20210205) - same as 1.0-RC4 but made compliant for Maven Central due to JCenter/Bintray closure.
 * [1.0-RC4](https://github.com/bitsofinfo/docker-discovery-registrator-consul/releases/tag/1.0-RC4) - upgraded consul-client to 0.17.1
 * [1.0-RC3](https://github.com/bitsofinfo/docker-discovery-registrator-consul/releases/tag/1.0-RC3)
 * [1.0-RC2](https://github.com/bitsofinfo/docker-discovery-registrator-consul/releases/tag/1.0-RC2)
@@ -51,11 +53,11 @@ To use this discovery strategy in your Maven or Gradle project use the dependenc
 
 ```
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
-    compile 'org.bitsofinfo:docker-discovery-registrator-consul:1.0-RC4'
+    compile 'org.bitsofinfo:docker-discovery-registrator-consul:1.0-RC4-20210205'
 
     // include your preferred javax.ws.rs-api implementation
     // (for the OrbitzWorldwide/consul-client dependency)
@@ -73,7 +75,7 @@ dependencies {
     <dependency>
         <groupId>org.bitsofinfo</groupId>
         <artifactId>docker-discovery-registrator-consul</artifactId>
-        <version>1.0-RC4</version>
+        <version>1.0-RC4-20210205</version>
     </dependency>
 
     <!-- include your preferred javax.ws.rs-api

@@ -66,11 +66,34 @@ publishing {
     publications {
         dockerDiscoveryRegistratorConsul(MavenPublication) {
             from components.java
+
             groupId project.property('group')
             artifactId 'docker-discovery-registrator-consul'
             version project.property('version')
 
             artifact sourcesJar
+            artifact javadocJar
+
+            pom.withXml {
+                asNode().appendNode('name', project.property('group')+":docker-discovery-registrator-consul")
+                asNode().appendNode('description', project.property('description'))
+                asNode().appendNode('url', "https://github.com/bitsofinfo/docker-discovery-registrator-consul")
+                asNode().appendNode('packaging', "jar")
+                asNode().appendNode('licenses').appendNode('license')
+                    .appendNode('name', "The Apache License, Version 2.0").parent()
+                    .appendNode('url', "http://www.apache.org/licenses/LICENSE-2.0.txt")
+                asNode().appendNode('developers').appendNode('developer')
+                    .appendNode('id', "bitsofinfo").parent()
+                    .appendNode('name', "bitsofinfo").parent()
+                    .appendNode('email', "bitsofinfo.g@gmail.com").parent()
+                    .appendNode('organization',"bitsofinfo").parent()
+                    .appendNode('organizationUrl','https://github.com/bitsofinfo')
+                asNode().appendNode('scm')
+                    .appendNode('connection', "scm:git:https://github.com/bitsofinfo/docker-discovery-registrator-consul.git").parent()
+                    .appendNode('developerConnection', "scm:git:https://github.com/bitsofinfo/docker-discovery-registrator-consul.git").parent()
+                    .appendNode('url', "https://github.com/bitsofinfo/docker-discovery-registrator-consul")   
+            }
+
         }
     }
 }
@@ -80,9 +103,14 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
+task javadocJar(type: Jar, dependsOn: 'javadoc') {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
 
 artifacts {
     archives sourcesJar
+    archives javadocJar
 }
 
 fatJar {
@@ -91,5 +119,6 @@ fatJar {
     attributes 'Main-Class': 'org.bitsofinfo.docker.discovery.registrator.consul.sample.SampleContainerApp'
   }
 }
+
 
 

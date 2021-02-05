@@ -12,7 +12,7 @@ import com.orbitz.consul.CatalogClient;
  * where the Registrator monitored Docker container was started 
  * by explicity setting a unique port based SERVCE_[PORT]_NAME as follows, 
  * or NOT SETTING any "SERVICE_NAME" environment at all (by which the default
- * with registration is to do <container-name>-[port]. 
+ * with registration is to do [container-name]-[port]. 
  * 
  * * see: http://gliderlabs.com/registrator/latest/user/services/#service-name 
  * 
