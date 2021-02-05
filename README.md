@@ -83,17 +83,6 @@ dependencies {
          implementation - see gradle example above
     -->
 </dependencies>
-
-<repositories>
-    <repository>
-        <snapshots>
-            <enabled>false</enabled>
-        </snapshots>
-        <id>central</id>
-        <name>bintray</name>
-        <url>http://jcenter.bintray.com</url>
-    </repository>
-</repositories>
 ```
 
 ## <a id="features"></a>Features
