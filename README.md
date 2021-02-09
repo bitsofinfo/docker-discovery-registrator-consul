@@ -27,7 +27,8 @@ for other services it provides or clustering groups it must form.
 
 Beta code. Master branch available only.
 
-**IMPORTANT: TAG: 1.0-RC4-20210205**: All tags prior to this might not end up in maven central. However this tag is a re-publish of 1.0-RC4 to be made available in Maven Central due to the sunset of Bintray/JCenter in 2021. 
+**IMPORTANT:**: Do not rely on JCenter/Bintray anymore! Update your gradle/maven dependencies to use Maven Central: https://search.maven.org/search?q=g:org.bitsofinfo
+
 ## <a id="releases"></a>Releases
 
 * MASTER - in progress, this README refers to what is in the master branch. Switch to relevant RELEASE tag above to see that versions README
